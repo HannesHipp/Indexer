@@ -1,5 +1,6 @@
 import PyPDF2
 import nltk
+import pandas as pd
 from nltk.corpus import stopwords
 from fpdf import FPDF
 from Exporter import Exporter
@@ -74,6 +75,11 @@ threshold = 10
 # remove words that appear more than the threshold value
 index = {word: pages for word, pages in index.items() if len(pages) <= threshold}
 
+data = [(word, page) for word, pages in index.items() for page in pages]
+
+# create a DataFrame from the list of tuples
+df = pd.DataFrame(data, columns=['word', 'page'])
+
 # create a pdf object
 pdf = PDF()
 
@@ -90,7 +96,7 @@ for word, count in index.items():
 print(index)
 
 # save the pdf to the local directory
-#pdf.output("index.pdf", "F")
+pdf.output("index.pdf", "F")
 
 #print the index
 #print(index)
