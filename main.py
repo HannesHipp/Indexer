@@ -2,6 +2,9 @@ import PyPDF2
 import nltk
 from nltk.corpus import stopwords
 from fpdf import FPDF
+from Exporter import Exporter
+from Extractor import Extractor
+from Filter import Filter
 
 class PDF(FPDF):
     def header(self):
@@ -13,6 +16,14 @@ class PDF(FPDF):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+
+
+# Data Flow
+# pdfs -> Extractor -> dataframe -> Filter -> dataframe -> Exporter -> pdfs
+extractor = Extractor()
+filter = Filter()
+exporter = Exporter()
+
 
 
 nltk.download('stopwords')
