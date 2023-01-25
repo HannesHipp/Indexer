@@ -83,3 +83,5 @@ print(index)
 
 #print the index
 #print(index)
+
+#Todo >>> df.groupby(["state", "gender"])["last_name"].count()
