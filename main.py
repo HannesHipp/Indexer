@@ -5,24 +5,21 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 # open the PDF file
-pdf_file = open('example.pdf', 'rb')
+pdf_file = open('test_data\\V1.pdf', 'rb')
 
 # create a PDF reader object
-pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+pdf_reader = PyPDF2.PdfReader(pdf_file)
 
 # create an empty string to store the text
 text = ""
 
 # iterate over each page in the PDF
-for page in range(pdf_reader.numPages):
+for page_number in range(len(pdf_reader.pages)):
     # extract the text from the page
-    text += pdf_reader.getPage(page).extractText()
+    text += pdf_reader.pages[page_number].extract_text()
 
 # close the PDF file
 pdf_file.close()
-
-# tokenize the text
-tokens = word_tokenize(text)
 
 # remove stop words
 stop_words = set(stopwords.words('english'))
