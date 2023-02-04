@@ -1,4 +1,4 @@
-from Extractor import *
+from src.Extractor import *
 from Filter import *
 
 

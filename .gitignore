@@ -1,5 +1,5 @@
 *.venv
 *.idea
 *test.py
-*merged.pdf
-*test_data
+*.pdf
+*ressources
