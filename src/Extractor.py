@@ -10,22 +10,21 @@ pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesse
 
 class Extractor:
 
-    def __init__(self, paths, sentence_extraction_strategy) -> None:
+    def __init__(self, sentence_extraction_strategy) -> None:
         self.sentence_extraction_strategy = sentence_extraction_strategy
+
+    def extract_slides(self, paths):
         slides = []
         global_page_num = 1
         for path in paths:
             pdf_doc = PdfDocument(path)
             for page_num in range(len(pdf_doc)):
-                slides.append(Slide(global_page_num, pdf_doc, page_num))
+                slide = Slide(global_page_num, pdf_doc, page_num)
+                slide.sentences = self.sentence_extraction_strategy.extract_from(
+                    slide)
+                slides.append(slide)
                 global_page_num += 1
-        self.slides = slides
-
-    def extract_sentences_into_slides(self):
-        for slide in self.slides:
-            slide.sentences = self.sentence_extraction_strategy.extract_from(
-                slide)
-        return self.slides
+        return slides
 
 
 class SentenceExtractionStrategy(ABC):

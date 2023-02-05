@@ -5,13 +5,12 @@ from typing import List, Dict
 
 class SentenceParser:
 
-    def __init__(self, slides, parsing_strategy) -> None:
-        self.slides = slides
+    def __init__(self, parsing_strategy) -> None:
         self.parsing_strategy = parsing_strategy
 
-    def parse_sentences(self) -> Dict[str, List[Slide]]:
+    def parse_slides(self, slides) -> Dict[str, List[Slide]]:
         words = {}
-        for slide in self.slides:
+        for slide in slides:
             for sentence in slide.sentences:
                 for word in self.parse_sentence(sentence):
                     if word in words:
