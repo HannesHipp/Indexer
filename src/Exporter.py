@@ -3,7 +3,7 @@ def generate_index(words, output_path, grouping):
     for word in words:
         page_numbers = []
         for slide in words[word]:
-            page_numbers.append(slide.slide_number)
+            page_numbers.append(slide.global_slide_num)
         index[word] = page_numbers
     index = dict(sorted(index.items()))
     with open("output.txt", "w+") as o:
