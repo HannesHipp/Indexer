@@ -8,9 +8,24 @@ stopwords_ = [word.capitalize() for word in stopwords.words("german")]
 
 def filter_words(words: Dict[str, List[Slide]]) -> Dict[str, List[Slide]]:
     max_page_number = get_max_page_number(words)
+    removed_words = {}
     for word in list(words):
+        # if word == "Absorberrohr":
+        #     print("Hello")
         if should_be_removed(word) or not is_dense(words[word], max_page_number):
-            words.pop(word)
+            removed_slides = words.pop(word)
+            removed_words[word] = removed_slides
+
+    index = {}
+    for word in removed_words:
+        page_numbers = []
+        for slide in removed_words[word]:
+            page_numbers.append(slide.global_slide_num)
+        index[word] = page_numbers
+    index = dict(sorted(index.items()))
+    with open("removed.txt", "w+") as o:
+        for word in index:
+            o.write(f"{word}: {str(index[word])}\n")
     return words
 
 
@@ -46,21 +61,22 @@ def is_noun(word):
 def is_dense(slides, max_page_number):
     if len(slides) == 1:
         return True
-    diff_schwelle = 10
-    abstand_schwelle = max_page_number / 5
-    max_streak_length = math.ceil(max_page_number / 20)
+    new_streak_after = 10
+    max_num_streaks = 5
+    max_streak_length = math.ceil(max_page_number / 60)
 
     numbers = [slide.global_slide_num for slide in slides]
     numbers = sorted(numbers)
 
-    big_diffs = []
+    num_of_streaks = 0
+    streak_counter = 0
+
     first = numbers.pop(0)
     last = first
-    streak_counter = 0
     for number in numbers:
         diff = number - last
-        if diff > diff_schwelle:
-            big_diffs.append(diff)
+        if diff > new_streak_after:
+            num_of_streaks += 1
             streak_counter = 0
         else:
             streak_counter += 1
@@ -68,8 +84,6 @@ def is_dense(slides, max_page_number):
                 return False
         last = number
 
-    if len(big_diffs) != 0:
-        avrg_diff = sum(big_diffs)/len(big_diffs)
-        if avrg_diff > abstand_schwelle:
-            return True
-    return False
+    if num_of_streaks > max_num_streaks:
+        return False
+    return True
