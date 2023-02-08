@@ -10,22 +10,10 @@ def filter_words(words: Dict[str, List[Slide]]) -> Dict[str, List[Slide]]:
     max_page_number = get_max_page_number(words)
     removed_words = {}
     for word in list(words):
-        # if word == "Absorberrohr":
-        #     print("Hello")
         if should_be_removed(word) or not is_dense(words[word], max_page_number):
             removed_slides = words.pop(word)
             removed_words[word] = removed_slides
-
-    index = {}
-    for word in removed_words:
-        page_numbers = []
-        for slide in removed_words[word]:
-            page_numbers.append(slide.global_slide_num)
-        index[word] = page_numbers
-    index = dict(sorted(index.items()))
-    with open("removed.txt", "w+") as o:
-        for word in index:
-            o.write(f"{word}: {str(index[word])}\n")
+    print_removed_words(removed_words)
     return words
 
 
@@ -39,8 +27,6 @@ def get_max_page_number(words_dict):
 
 
 def should_be_removed(word):
-    if not word[0].isupper():
-        return True
     if is_stopword(word):
         return True
     if not is_noun(word):
@@ -55,7 +41,9 @@ def is_stopword(word):
 
 
 def is_noun(word):
-    return True
+    if word[0].isupper():
+        return True
+    return False
 
 
 def is_dense(slides, max_page_number):
@@ -87,3 +75,16 @@ def is_dense(slides, max_page_number):
     if num_of_streaks > max_num_streaks:
         return False
     return True
+
+
+def print_removed_words(removed_words):
+    index = {}
+    for word in removed_words:
+        page_numbers = []
+        for slide in removed_words[word]:
+            page_numbers.append(slide.global_slide_num)
+        index[word] = page_numbers
+    index = dict(sorted(index.items()))
+    with open("removed.txt", "w+") as o:
+        for word in index:
+            o.write(f"{word}: {str(index[word])}\n")
