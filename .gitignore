@@ -5,5 +5,5 @@
 *.pdf
 *ressources
 
-output.txt
+src/output.txt
 removed.txt

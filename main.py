@@ -1,9 +1,10 @@
 from src.Extractor import Extractor, PDFSentenceExtractionStrategy, OKRSentenceExtractionStrategy
-from src.Filter import filter_words
-from src.Exporter import generate_index
+from src.Filter import WordFilter
+from src.Exporter import IndexExporter
 from src.Slide import Slide
 from src.SentenceParser import SentenceParser
-import os, glob
+import os
+import glob
 import nltk
 
 
@@ -38,10 +39,12 @@ def main():
 
     print("start filter")
     # filter = Filter(None)
-    words = filter_words(words)  # needs to be rewritten as a Class
+    word_filter = WordFilter()
+    words = word_filter.filter_words(words)
 
     print("start export")
-    index = generate_index(words, output_path, grouping)
+    index_exp = IndexExporter()
+    index = index_exp.generate_index(words, output_path, grouping)
     # document = exporter.gernerate_document(words, output_path)
 
 

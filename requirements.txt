@@ -1,0 +1,5 @@
+docx==0.2.4
+nltk==3.6.5
+pypdfium2==0.5.2
+pytesseract==0.3.8
+python-docx==0.8.11
