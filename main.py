@@ -27,7 +27,7 @@ def main():
     input_paths = get_pdf_files()
 
     grouping = (3, 3)  # not active yet
-    output_path = ""
+    output_path = "src/index.xlsx"
 
     print("start extraction")
     extractor = Extractor(PDFSentenceExtractionStrategy())

@@ -1,69 +1,47 @@
-import docx
-from docx.shared import Cm, Pt
-from docx.enum.section import WD_SECTION, WD_ORIENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+import openpyxl
+from openpyxl.utils import get_column_letter
 
 class IndexExporter:
 
-    def __init__(self):
-        pass #Todo eventuell Einstellungen für die Erstellung der Word in die init packen?
+    def __init__(self) -> None:
+        pass
 
     def generate_index(self, words, output_path, grouping):
+        index = self.create_index(words)
+        self.generate_word_index(index, output_path)
+
+    def create_index(self, words):
         index = {}
         for word in words:
             page_numbers = []
             for slide in words[word]:
                 page_numbers.append(slide.global_slide_num)
             index[word] = page_numbers
-        index = dict(sorted(index.items()))
+        return dict(sorted(index.items()))
 
-        # Save the index to a Word document
-        self.generate_word_index(index)
+    def generate_word_index(self, index, output_path):
+        # Create a new Excel workbook and add a worksheet
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
 
-    def generate_word_index(self, index):
+        # Set the column width
+        column_width = 20
+        for col_num in range(1, 5):
+            column_letter = get_column_letter(col_num)
+            sheet.column_dimensions[column_letter].width = column_width
 
-        doc = docx.Document()
-
-        # Page Settings
-        section = doc.sections[0]
-        section.orientation = WD_ORIENT.LANDSCAPE
-        section.page_width = Cm(29.7)
-        section.page_height = Cm(21.0)
-        section.left_margin = Cm(1.0)
-        section.right_margin = Cm(1.0)
-        section.top_margin = Cm(1.0)
-        section.bottom_margin = Cm(1.0)
-
-        style = doc.styles['Normal']
-        font = style.font
-        font.name = 'Arial'
-        font.size = Pt(9)
-
-        col_width = Cm(5)
-        num_cols = 4
-
-        table = doc.add_table(rows=1, cols=num_cols)
-        table.autofit = False
-        for col in table.columns:
-            col.width = col_width
-
-        # Write the lines to the table
-        row = table.rows[0]
-        i = 0
+        # Write the index to the worksheet
+        row = 1
+        col = 1
         for word, page_numbers in index.items():
-            line = f"{word}: {str(page_numbers)}"
-            if i >= num_cols:
-                i = 0
-                table.add_row()
-                row = table.rows[-1]
-            cell = row.cells[i]
-            cell.text = line.strip()
-            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-            cell.paragraphs[0].style.font.name = 'Arial'
-            cell.paragraphs[0].style.font.size = Cm(0.3)
-            i += 1
+            line = f"{word}: {', '.join(map(str, page_numbers))}"
+            sheet.cell(row=row, column=col, value=line)
 
-        # Save the document
-        doc.save('index.docx')
+            # Move to the next cell
+            col += 1
+            if col > 4:
+                col = 1
+                row += 1
 
-
+        # Save the workbook
+        workbook.save(output_path)
