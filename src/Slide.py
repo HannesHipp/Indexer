@@ -1,4 +1,4 @@
-from pypdfium2 import OptimiseMode, PdfPage
+from pypdfium2 import  PdfPage
 
 
 class Slide:
@@ -18,5 +18,5 @@ class Slide:
             rotation=0,
             crop=(0, 0, 0, 0),
             greyscale=False,
-            optimise_mode=OptimiseMode.NONE,
+
         )

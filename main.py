@@ -1,48 +1,19 @@
-from src.Extractor import Extractor, PDFSentenceExtractionStrategy, OKRSentenceExtractionStrategy
-from src.Filter import filter_words
+from src.Extractor import Extractor, PDFSentenceExtractionStrategy
 from src.Exporter import generate_index
 from src.Slide import Slide
 from src.SentenceParser import SentenceParser
+from src.Filter import filter_words
 import os, glob
 import nltk
+import logging
+import concurrent.futures
 
 
-def main():
-    input_paths_backup = [
-        "ressources\\test_data\\V1.pdf",
-        "ressources\\test_data\\V2.pdf",
-        "ressources\\test_data\\V3.pdf",
-        "ressources\\test_data\\V4.pdf",
-        "ressources\\test_data\\V5.pdf",
-        "ressources\\test_data\\V6.pdf",
-        "ressources\\test_data\\V7.1.pdf",
-        "ressources\\test_data\\V8.pdf",
-        "ressources\\test_data\\V9.pdf",
-        "ressources\\test_data\\V10.pdf",
-        "ressources\\test_data\\V11.pdf",
-        "ressources\\test_data\\V12.pdf",
-        "ressources\\test_data\\V13.pdf"
-    ]
-    input_paths = get_pdf_files()
-
-    grouping = (3, 3)  # not active yet
-    output_path = ""
-
-    print("start extraction")
-    extractor = Extractor(PDFSentenceExtractionStrategy())
-    slides = extractor.extract_slides(input_paths)
-
-    print("start parsing")
-    parser = SentenceParser(None)
-    words = parser.parse_slides(slides)
-
-    print("start filter")
-    # filter = Filter(None)
-    words = filter_words(words)  # needs to be rewritten as a Class
-
-    print("start export")
-    index = generate_index(words, output_path, grouping)
-    # document = exporter.gernerate_document(words, output_path)
+def ensure_nltk_data():
+    try:
+        nltk.data.find('corpora/stopwords.zip')
+    except LookupError:
+        nltk.download('stopwords')
 
 
 def get_pdf_files():
@@ -50,14 +21,46 @@ def get_pdf_files():
     if not os.path.isdir(dir_name):
         raise FileNotFoundError(f"{dir_name} directory not found")
     pdf_files = glob.glob(os.path.join(dir_name, "**/*.pdf"), recursive=True)
+    if not pdf_files:
+        raise FileNotFoundError("No PDF files found in the specified directory.")
     return pdf_files
 
-def debug():
-    #TODO Für neue Benutzer geht der Code nicht, Sie müssen als erstes nltk.download benutzen. Da müssen wir noch eine Lösung finden.
-    nltk.download('stopwords')
-    pdf = get_pdf_files()
-    print(pdf)
+
+def extract_slides_from_pdf(file):
+    extractor = Extractor(PDFSentenceExtractionStrategy())
+    return extractor.extract_slides([file])
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+
+    logging.info("Ensuring NLTK data is available")
+    ensure_nltk_data()
+
+    logging.info("Fetching PDF files")
+    input_paths = get_pdf_files()
+
+    logging.info("Starting extraction")
+    slides = []
+    for path in input_paths:
+        slides.extend(extract_slides_from_pdf(path))
+
+    logging.info("Parsing slides")
+    parser = SentenceParser(None)
+    words = parser.parse_slides(slides)
+
+    logging.info("Filtering words")
+    words = filter_words(words)
+
+    logging.info("Generating index")
+    grouping = (3, 3)
+    output_path = ""
+    index = generate_index(words, output_path, grouping)
+
+    logging.info("Process completed successfully")
 
 
 if __name__ == '__main__':
     main()
+
+
