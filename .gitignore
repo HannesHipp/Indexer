@@ -4,6 +4,6 @@
 *test.py
 *.pdf
 *ressources
+*test*
 
-output.txt
-removed.txt
+*.txt
